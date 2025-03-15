@@ -4,9 +4,6 @@ import { TrendingView } from "@/modules/home/ui/views/trending-view";
 
 export const dynamic = "force-dynamic";
 
-interface PageProps {
-  searchParams: Promise<{ categoryId?: string }>;
-}
 const Page = async () => {
   void trpc.videos.getTrending.prefetchInfinite({
     limit: DEFAULT_LIMIT,

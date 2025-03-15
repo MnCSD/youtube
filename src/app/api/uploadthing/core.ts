@@ -11,6 +11,49 @@ const f = createUploadthing();
 // FileRouter for your app, can contain multiple FileRoutes
 export const ourFileRouter = {
   // Define as many FileRoutes as you like, each with a unique routeSlug
+  bannerUploader: f({
+    image: {
+      maxFileSize: "4MB",
+      maxFileCount: 1,
+    },
+  })
+    .middleware(async () => {
+      const { userId: clerkUserId } = await auth();
+
+      if (!clerkUserId) throw new UploadThingError("Unauthorized");
+
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.clerkId, clerkUserId));
+
+      if (!user) {
+        throw new UploadThingError("User not found");
+      }
+
+      if (user.bannerKey) {
+        const utapi = new UTApi();
+
+        await utapi.deleteFiles(user.bannerKey);
+        await db
+          .update(users)
+          .set({ bannerKey: null, bannerUrl: null })
+          .where(eq(users.id, user.id));
+      }
+
+      return { userId: user.id };
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      await db
+        .update(users)
+        .set({
+          bannerUrl: file.ufsUrl,
+          bannerKey: file.key,
+        })
+        .where(eq(videos.userId, metadata.userId));
+
+      return { uploadedBy: metadata.userId };
+    }),
   thumbnailUploader: f({
     image: {
       maxFileSize: "4MB",

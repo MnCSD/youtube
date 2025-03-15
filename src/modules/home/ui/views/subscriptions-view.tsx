@@ -1,8 +1,3 @@
-import Image from "next/image";
-import { CategoriesSection } from "../sections/categories-section";
-import { HomeVideosSection } from "../sections/home-videos-section";
-import { TrendingVideosSection } from "../sections/trending-videos-section";
-import { Separator } from "@/components/ui/separator";
 import { SubscribedVideoSection } from "../sections/subscribed-videos-section";
 
 export const SubscriptionsView = () => {

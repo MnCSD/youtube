@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ClapperboardIcon, UserCircleIcon } from "lucide-react";
+import { ClapperboardIcon, UserCircleIcon, UserIcon } from "lucide-react";
 import React from "react";
 import { UserButton, SignInButton, SignedOut, SignedIn } from "@clerk/nextjs";
 
@@ -12,10 +12,16 @@ export const AuthButton = () => {
         <UserButton>
           <UserButton.MenuItems>
             <UserButton.Link
+              label="View your channel"
+              href="/users/current"
+              labelIcon={<></>}
+            />
+            <UserButton.Link
               label="Youtube Studio"
               href="/studio"
               labelIcon={<ClapperboardIcon className="size-4" />}
             />
+            <UserButton.Action label="manageAccount" />
           </UserButton.MenuItems>
         </UserButton>
       </SignedIn>

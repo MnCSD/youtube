@@ -1,8 +1,14 @@
 import { db } from "@/db";
 import { z } from "zod";
-import { videos } from "@/db/schema";
+import {
+  comments,
+  users,
+  videoReactions,
+  videos,
+  videoViews,
+} from "@/db/schema";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
-import { eq, and, or, lt, desc } from "drizzle-orm";
+import { eq, and, or, lt, desc, getTableColumns } from "drizzle-orm";
 import { getDomainOfItemsWithSameAxis } from "recharts/types/util/ChartUtils";
 import { TRPCError } from "@trpc/server";
 
@@ -45,8 +51,21 @@ export const studioRouter = createTRPCRouter({
       const { id: userId } = ctx.user;
 
       const data = await db
-        .select()
+        .select({
+          ...getTableColumns(videos),
+          viewCount: db.$count(videoViews, eq(videoViews.videoId, videos.id)),
+          commentCount: db.$count(comments, eq(comments.videoId, videos.id)),
+          likeCount: db.$count(
+            videoReactions,
+            and(
+              eq(videoReactions.videoId, videos.id),
+              eq(videoReactions.type, "like")
+            )
+          ),
+          user: users,
+        })
         .from(videos)
+        .leftJoin(users, eq(videos.userId, users.id))
         .where(
           and(
             eq(videos.userId, userId),
